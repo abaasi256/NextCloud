@@ -17,10 +17,9 @@ cloud.example.com {
     # Serves dynamic content via FPM
     php_fastcgi app:9000
 
-    # 3. Static Asset Serving
-    # Serves css/js/images directly from the mounted volume (Performance)
-    root * /var/www/html
-    file_server
+    # 3. Proxy-Only Mode
+    # Caddy does not directly serve Nextcloud files
+    # All requests including static assets are handled by FastCGI
 
     # 4. Access Control (Hardening)
     # Block internal usage files and config

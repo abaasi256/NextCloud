@@ -33,7 +33,7 @@ graph TD
 
 ### 3. Application Runtime (Stateless)
 **Decision:** `nextcloud:fpm-alpine`.
-*   **Static Assets:** Shared via volume mount with Caddy for high-performance zero-copy serving.
+*   **Static Assets:** Handled via FastCGI (Zero-shared-nothing architecture).
 *   **PHP:** Isolated in the FPM container, scaled independently.
 
 ---

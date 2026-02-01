@@ -9,7 +9,12 @@ set -e
 # ==============================================================================
 
 # -- Configuration --
-PROJECT_ROOT="/opt/nextcloud"
+# Assumes script is run from project root or ./scripts/
+if [ -d "/opt/nextcloud" ]; then
+    PROJECT_ROOT="/opt/nextcloud"
+else
+    PROJECT_ROOT="$(pwd)"
+fi
 BACKUP_DIR="${PROJECT_ROOT}/backups"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 

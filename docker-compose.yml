@@ -17,14 +17,8 @@ services:
       - ingress_net
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 512M
-        reservations:
-          cpus: '0.10'
-          memory: 128M
+    mem_limit: 512m
+    cpus: "0.5"
 
   # Database
   db:
@@ -41,14 +35,8 @@ services:
       - data_net
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
+    mem_limit: 1g
+    cpus: "1.0"
 
   # Cache
   redis:
@@ -60,14 +48,8 @@ services:
       - data_net
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 256M
-        reservations:
-          cpus: '0.10'
-          memory: 64M
+    mem_limit: 256m
+    cpus: "0.5"
 
   # Application Runtime (PHP-FPM)
   app:
@@ -96,14 +78,8 @@ services:
       - data_net
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '1.00'
-          memory: 1024M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
+    mem_limit: 1g
+    cpus: "1.0"
 
   # Background Workers
   cron:
@@ -121,11 +97,8 @@ services:
       - data_net
     security_opt:
       - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: 256M
+    mem_limit: 256m
+    cpus: "0.25"
 
 networks:
   ingress_net:

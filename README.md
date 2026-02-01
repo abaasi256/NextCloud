@@ -19,10 +19,10 @@ Built on **Nextcloud** and **Docker**, it replaces "hobbyist" defaults with **De
 | **Orchestrator** | Docker Compose | Lifecycle management & Definition-as-Code |
 
 ### Key Features
-*   **Infrastructure Defined as Code:** Fully defined in `docker-compose.yml`.
+*   **Declarative Service Topology** defined in `docker-compose.yml`.
 *   **Zero-Trust Networking:** Database and Redis operate on an `internal` network with **no internet access**.
 *   **Resource Governance:** CPU and Memory limits (cgroups) prevent "noisy neighbor" scenarios.
-*   **Ingress Hardening:** A+ SSL rating configuration with strict HSTS and Permission Policies.
+*   **Ingress Hardening:** Modern TLS defaults via Caddy (TLS 1.3, HSTS, strict headers).
 *   **Privilege Escalation Prevention:** All containers run with `security_opt: [no-new-privileges:true]`.
 
 ---
