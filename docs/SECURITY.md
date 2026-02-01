@@ -37,3 +37,6 @@ Secrets (DB passwords, Redis passwords) are injected via a `.env` file at runtim
 *   **Risk Profile:** Acceptable for single-tenant VPS where file permissions (`600` on `.env`) are strictly enforced.
 *   **Mitigation:** The `.env` file is excluded from git (`.gitignore`).
 *   **Future Path:** For multi-node swarms, migration to Docker Secrets (mounted as files in `/run/secrets`) is the standard upgrade path.
+
+
+**Note:** Redis authentication is configured via command-line arguments, which may be visible via container inspection. This is acceptable for a single-tenant VPS but would be replaced with file-based secrets in multi-tenant environments.

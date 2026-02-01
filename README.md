@@ -16,11 +16,11 @@ Built on **Nextcloud** and **Docker**, it replaces "hobbyist" defaults with **De
 | **App Runtime** | Nextcloud (FPM) | Stateless PHP runtime with externalized persistence |
 | **Database** | PostgreSQL 16+ | High-concurrency relational storage |
 | **Cache** | Redis | Session management & Transactional Locking |
-| **Orchestrator** | Docker Compose | Lifecycle management & Definition-as-Code |
+| **Orchestrator** | Docker Compose | Declarative service lifecycle & topology |
 
 ### Key Features
 *   **Declarative Service Topology** defined in `docker-compose.yml`.
-*   **Zero-Trust Networking:** Database and Redis operate on an `internal` network with **no internet access**.
+*   **Least-Privilege Network Segmentation:** Database and Redis operate on an `internal` network with no internet access.
 *   **Resource Governance:** CPU and Memory limits (cgroups) prevent "noisy neighbor" scenarios.
 *   **Ingress Hardening:** Modern TLS defaults via Caddy (TLS 1.3, HSTS, strict headers).
 *   **Privilege Escalation Prevention:** All containers run with `security_opt: [no-new-privileges:true]`.
@@ -73,7 +73,7 @@ The architecture will initialize, create the isolated networks, and provision th
 
 ## 🔐 Security Checks
 *   [x] **No exposed ports** for DB or Redis.
-*   [x] **TLS 1.3** enforced by Caddy.
+*   [x] **Modern TLS defaults** provided by Caddy (TLS 1.3 preferred).
 *   [x] **No-New-Privileges** flag enabled on all containers.
 
 ---
