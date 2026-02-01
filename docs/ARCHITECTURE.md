@@ -20,7 +20,7 @@ graph TD
 
 ### 1. Ingress / Reverse Proxy (Caddy)
 **Decision:** Caddy is included as the **Application Gateway**.
-*   **Role:** It handles application-specific routing (CalDAV redirects), static asset serving, and strict security headers closer to the app.
+*   **Role:** It handles TLS termination, application-specific routing (CalDAV/CardDAV), and security headers. All application content is processed via FastCGI to the Nextcloud runtime.
 *   **Deployment:** 
     *   *Standalone:* Binds ports 80/443 directly.
     *   *Behind Edge Proxy:* Change `docker-compose.yml` to expose ports locally or on an internal Docker network, and forward traffic from your edge Nginx/Traefik.

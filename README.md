@@ -13,7 +13,7 @@ Built on **Nextcloud** and **Docker**, it replaces "hobbyist" defaults with **De
 | Component | Technology | Role |
 |-----------|------------|------|
 | **Ingress** | Caddy | TLS Termination, HTTP/3, Security Headers |
-| **App Runtime** | Nextcloud (FPM) | Stateless PHP Application Logic |
+| **App Runtime** | Nextcloud (FPM) | Stateless PHP runtime with externalized persistence |
 | **Database** | PostgreSQL 16+ | High-concurrency relational storage |
 | **Cache** | Redis | Session management & Transactional Locking |
 | **Orchestrator** | Docker Compose | Lifecycle management & Definition-as-Code |
@@ -43,6 +43,8 @@ Built on **Nextcloud** and **Docker**, it replaces "hobbyist" defaults with **De
 | **Database Corruption** | High | Daily `pg_dump` via `scripts/backup.sh`. |
 | **Host Compromise** | Critical | Containers have no privilege escalation (`no-new-privileges`). |
 | **Resource Exhaustion** | Managed | Hard limits prevent Nextcloud from crashing the system. |
+
+> **Note:** The backup script assumes the project resides in `/opt/nextcloud` or is executed from the project root.
 
 ---
 

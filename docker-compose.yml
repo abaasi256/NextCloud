@@ -11,8 +11,6 @@ services:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - ./caddy/data:/data
       - ./caddy/config:/config
-      # Mount Nextcloud webroot for static file serving
-      - ./data:/var/www/html:ro
     networks:
       - ingress_net
     security_opt:

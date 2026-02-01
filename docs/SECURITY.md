@@ -16,7 +16,7 @@ We use Docker network isolation to create "air gaps":
 
 ### 2. Container Hardening
 *   **No New Privileges:** `security_opt: [no-new-privileges:true]` is set on ALL containers. This prevents a compromised process from gaining more privileges (e.g., via `sudo` or setuid binaries) even if the user is root inside the container.
-*   **ReadOnly Mounts:** Static assets are mounted `:ro` (Ready Only) where appropriate (e.g., Caddy's view of webroot).
+*   **ReadOnly Mounts:** Sensitive directories are mounted read-only where applicable. The ingress proxy has no direct filesystem access to Nextcloud application or data files.
 
 ### 3. Ingress Hardening
 The bundled Caddy configuration enforces:
