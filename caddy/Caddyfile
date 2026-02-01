@@ -1,0 +1,37 @@
+{
+    # Production settings
+    email your@email.com
+}
+
+cloud.example.com {
+    # Security Headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy no-referrer-when-downgrade
+        Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()"
+    }
+
+    # Reverse proxy to Nextcloud
+    reverse_proxy app:9000 {
+        transport fastcgi {
+            split .php
+        }
+    }
+
+    root * /var/www/html
+    file_server
+    php_fastcgi app:9000
+
+    # Block sensitive paths
+    @forbidden {
+        path /build/* /tests/* /config/* /lib/* /3rdparty/* /templates/* /data/*
+        path /.* /autotest /occ /issue /indie /db_ /console
+    }
+    respond @forbidden 404
+
+    # CalDAV/CardDAV redirects
+    redir /.well-known/carddav /remote.php/dav 301
+    redir /.well-known/caldav /remote.php/dav 301
+}

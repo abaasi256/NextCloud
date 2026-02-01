@@ -1,0 +1,22 @@
+# Dependencies
+.env
+
+# Data directories (never commit user data)
+data/
+db/
+config/
+caddy/data/
+caddy/config/
+
+# Backups
+backups/
+*.sql
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
