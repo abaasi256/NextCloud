@@ -2,95 +2,77 @@
 
 ## Overview
 
-This project documents the design and implementation of a **secure, production-grade self-hosted cloud platform** running on a single VPS.
+This project implements a **secure, maintainable self-hosted cloud platform** on a single VPS. 
 
-The system is built around **Nextcloud**, containerized with Docker, protected by a hardened reverse-proxy, and designed using **defense-in-depth** and **zero-trust** principles.
-
-It intentionally mirrors real-world production constraints, rather than lab environments or one-off demos.
+Built on **Nextcloud** and **Docker**, it replaces "hobbyist" defaults with **DevSecOps best practices**: strict network segmentation, resource governance, and defense-in-depth architecture.
 
 ---
 
-## 🎯 Objectives
+## 🏗 Architecture
 
-- Secure personal cloud storage without vendor lock-in
-- Demonstrate senior-level DevSecOps thinking
-- Operate multiple production services safely on one VPS
-- Balance security, performance, and maintainability
+| Component | Technology | Role |
+|-----------|------------|------|
+| **Ingress** | Caddy | TLS Termination, HTTP/3, Security Headers |
+| **App Runtime** | Nextcloud (FPM) | Stateless PHP Application Logic |
+| **Database** | PostgreSQL 16+ | High-concurrency relational storage |
+| **Cache** | Redis | Session management & Transactional Locking |
+| **Orchestrator** | Docker Compose | Lifecycle management & Infrastructure-as-Code |
 
----
-
-## 🧱 Architecture Overview
-
-| Layer | Implementation |
-|-------|----------------|
-| **Host** | Ubuntu 24.04 LTS (hardened), default-deny firewall, minimal exposed services |
-| **Runtime** | Docker Engine (cgroups v2, AppArmor, seccomp), network isolation between services |
-| **Ingress** | Centralized reverse proxy, TLS termination, security headers enforced |
-| **Application** | Nextcloud (containerized), stateless application design, persistent data volumes |
-| **Data Layer** | PostgreSQL (isolated network), Redis for locking & caching |
-| **Observability** | Resource monitoring, health visibility, disk and memory awareness |
-| **Backups** | Encrypted, restorable, tested recovery paths |
+### Key Features
+*   **Infrastructure as Code:** Fully defined in `docker-compose.yml`.
+*   **Zero-Trust Networking:** Database and Redis operate on an `internal` network with **no internet access**.
+*   **Resource Governance:** CPU and Memory limits prevent "noisy neighbor" scenarios.
+*   **Ingress Hardening:** A+ SSL rating configuration with strict HSTS and Permission Policies.
 
 ---
 
-## 🔐 Security Model
+## ⚖️ Design Trade-offs
 
-This platform applies **defense-in-depth** across multiple layers:
-
-- No direct container exposure to the internet
-- Least-privilege Docker networking
-- Hardened ingress with TLS & headers
-- Application-level security configuration
-- Minimal host attack surface
-- Explicit trust boundaries between services
-
-> Security decisions prioritize **risk reduction** over convenience.
+*   **PostgreSQL vs MariaDB:** We chose **PostgreSQL** for its superior handling of concurrent writes and reliability (WAL), despite slightly higher memory overhead than MariaDB.
+*   **Caddy vs external Nginx:** This repo bundles **Caddy** for a self-contained "Reference Architecture." In a multi-app VPS, this can sit behind your edge proxy (Nginx Proxy Manager/Traefik) or replace it completely suitable for dedicated instances.
+*   **Secrets via .env:** For simplicity on a single node, we use environment variables. A Swarm/K8s migration would move this to Secrets Management.
 
 ---
 
-## ⚙️ Operational Characteristics
+## 💥 Failure Scenarios & Recovery
 
-- Designed to coexist with multiple production workloads
-- Safe update paths with rollback awareness
-- Predictable resource usage on limited hardware
-- Recoverable from host or application failure
-
-The system is treated as **production infrastructure**, not a hobby deployment.
-
----
-
-## ♻️ Backup & Recovery
-
-- Defined backup scope
-- Encrypted storage
-- Restore procedures validated
-- Full environment rebuild achievable from documentation and backups
+| Scenario | Impact | Mitigation |
+|----------|--------|------------|
+| **Container Crash** | Minimal | `restart: unless-stopped` policy ensures auto-recovery. |
+| **Database Corruption** | High | Daily `pg_dump` backups (see `backup.sh`). |
+| **Host Compromise** | Critical | Containers run as unprivileged users; Data is isolated in volumes. |
+| **Resource Exhaustion** | Managed | Hard limits (cgroups) prevent Nextcloud from crashing the SSH daemon. |
 
 ---
 
-## 🚀 Why This Project Matters
+## 🚀 Getting Started
 
-Most self-hosting examples stop at *"it works."*
+### 1. Prerequisites
+*   Docker Engine & Docker Compose
+*   A domain name pointing to your VPS
 
-This project focuses on:
+### 2. Configuration
+Copy the template and set strong credentials:
+```bash
+cp .env.example .env
+chmod 600 .env  # Restrict permissions
+# Edit .env with your secrets
+```
 
-- **How it fails**
-- **How it recovers**
-- **How it stays secure over time**
-
-It reflects how production systems are actually designed, reviewed, and trusted.
+### 3. Deployment
+```bash
+docker compose up -d
+```
+The architecture will initialize, create the isolated networks, and provision the database schema automatically.
 
 ---
 
-## 🔭 Future Enhancements
-
-- [ ] Object storage backend
-- [ ] Hardware-backed secrets
-- [ ] SSO integration
-- [ ] Policy-as-code security controls
+## 🔐 Security Checks
+*   [x] **No exposed ports** for DB or Redis in `docker-compose.yml`.
+*   [x] **TLS 1.3** enforced by Caddy.
+*   [x] **Capabilities Dropped** implies strictly needed permissions.
 
 ---
 
 ## 🧾 License
-
 MIT
