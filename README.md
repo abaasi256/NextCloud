@@ -16,21 +16,22 @@ Built on **Nextcloud** and **Docker**, it replaces "hobbyist" defaults with **De
 | **App Runtime** | Nextcloud (FPM) | Stateless PHP Application Logic |
 | **Database** | PostgreSQL 16+ | High-concurrency relational storage |
 | **Cache** | Redis | Session management & Transactional Locking |
-| **Orchestrator** | Docker Compose | Lifecycle management & Infrastructure-as-Code |
+| **Orchestrator** | Docker Compose | Lifecycle management & Definition-as-Code |
 
 ### Key Features
-*   **Infrastructure as Code:** Fully defined in `docker-compose.yml`.
+*   **Infrastructure Defined as Code:** Fully defined in `docker-compose.yml`.
 *   **Zero-Trust Networking:** Database and Redis operate on an `internal` network with **no internet access**.
-*   **Resource Governance:** CPU and Memory limits prevent "noisy neighbor" scenarios.
+*   **Resource Governance:** CPU and Memory limits (cgroups) prevent "noisy neighbor" scenarios.
 *   **Ingress Hardening:** A+ SSL rating configuration with strict HSTS and Permission Policies.
+*   **Privilege Escalation Prevention:** All containers run with `security_opt: [no-new-privileges:true]`.
 
 ---
 
 ## ⚖️ Design Trade-offs
 
 *   **PostgreSQL vs MariaDB:** We chose **PostgreSQL** for its superior handling of concurrent writes and reliability (WAL), despite slightly higher memory overhead than MariaDB.
-*   **Caddy vs external Nginx:** This repo bundles **Caddy** for a self-contained "Reference Architecture." In a multi-app VPS, this can sit behind your edge proxy (Nginx Proxy Manager/Traefik) or replace it completely suitable for dedicated instances.
-*   **Secrets via .env:** For simplicity on a single node, we use environment variables. A Swarm/K8s migration would move this to Secrets Management.
+*   **Caddy vs external Nginx:** This repo bundles **Caddy** for a self-contained "Reference Architecture." In a multi-app VPS, this acts as the **Application Gateway**, sitting behind your edge proxy.
+*   **Secrets via .env:** For simplicity on a single node, we use environment variables. A Swarm/K8s migration would move this to Docker Secrets.
 
 ---
 
@@ -38,10 +39,10 @@ Built on **Nextcloud** and **Docker**, it replaces "hobbyist" defaults with **De
 
 | Scenario | Impact | Mitigation |
 |----------|--------|------------|
-| **Container Crash** | Minimal | `restart: unless-stopped` policy ensures auto-recovery. |
-| **Database Corruption** | High | Daily `pg_dump` backups (see `backup.sh`). |
-| **Host Compromise** | Critical | Containers run as unprivileged users; Data is isolated in volumes. |
-| **Resource Exhaustion** | Managed | Hard limits (cgroups) prevent Nextcloud from crashing the SSH daemon. |
+| **Container Crash** | Minimal | `restart: unless-stopped` auto-recovery. |
+| **Database Corruption** | High | Daily `pg_dump` via `scripts/backup.sh`. |
+| **Host Compromise** | Critical | Containers have no privilege escalation (`no-new-privileges`). |
+| **Resource Exhaustion** | Managed | Hard limits prevent Nextcloud from crashing the system. |
 
 ---
 
@@ -50,6 +51,7 @@ Built on **Nextcloud** and **Docker**, it replaces "hobbyist" defaults with **De
 ### 1. Prerequisites
 *   Docker Engine & Docker Compose
 *   A domain name pointing to your VPS
+*   `restic` (optional, for offsite backups)
 
 ### 2. Configuration
 Copy the template and set strong credentials:
@@ -68,9 +70,9 @@ The architecture will initialize, create the isolated networks, and provision th
 ---
 
 ## 🔐 Security Checks
-*   [x] **No exposed ports** for DB or Redis in `docker-compose.yml`.
+*   [x] **No exposed ports** for DB or Redis.
 *   [x] **TLS 1.3** enforced by Caddy.
-*   [x] **Capabilities Dropped** implies strictly needed permissions.
+*   [x] **No-New-Privileges** flag enabled on all containers.
 
 ---
 

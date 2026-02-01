@@ -1,6 +1,5 @@
 services:
-  # Ingress / Reverse Proxy
-  # Role: TLS Termination, Security Headers, Static File Serving
+  # Ingress / Reverse Proxy (Application Gateway)
   caddy:
     image: caddy:alpine
     container_name: caddy
@@ -12,8 +11,12 @@ services:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - ./caddy/data:/data
       - ./caddy/config:/config
+      # Mount Nextcloud webroot for static file serving
+      - ./data:/var/www/html:ro
     networks:
       - ingress_net
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -24,7 +27,6 @@ services:
           memory: 128M
 
   # Database
-  # Role: Persistent relational data
   db:
     image: postgres:16-alpine
     container_name: nextcloud_db
@@ -37,6 +39,8 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     networks:
       - data_net
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -46,8 +50,7 @@ services:
           cpus: '0.25'
           memory: 256M
 
-  # Cache & Locking
-  # Role: Session management and file locking
+  # Cache
   redis:
     image: redis:alpine
     container_name: nextcloud_redis
@@ -55,6 +58,8 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
     networks:
       - data_net
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -64,8 +69,7 @@ services:
           cpus: '0.10'
           memory: 64M
 
-  # Application Logic
-  # Role: PHP-FPM Nextcloud Runtime
+  # Application Runtime (PHP-FPM)
   app:
     image: nextcloud:fpm-alpine
     container_name: nextcloud_app
@@ -90,6 +94,8 @@ services:
     networks:
       - ingress_net
       - data_net
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -99,8 +105,7 @@ services:
           cpus: '0.25'
           memory: 256M
 
-  # Background Tasks
-  # Role: Periodic maintenance (cron.php)
+  # Background Workers
   cron:
     image: nextcloud:fpm-alpine
     container_name: nextcloud_cron
@@ -114,6 +119,8 @@ services:
     entrypoint: /cron.sh
     networks:
       - data_net
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -123,10 +130,7 @@ services:
 networks:
   ingress_net:
     driver: bridge
-    # Internal Note: This network exposes the app to the proxy.
     
   data_net:
     driver: bridge
     internal: true
-    # Internal Note: This network is strictly internal. 
-    # No internet access for containers attached ONLY to this network.
